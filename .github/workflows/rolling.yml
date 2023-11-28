@@ -25,13 +25,6 @@ jobs:
       image: vyos/vyos-build:sagitta
       options: --privileged
     steps:
-      - name: Generate Token
-        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
-        id: generate-token
-        with:
-          app_id: "${{ secrets.BOT_APP_ID }}"
-          private_key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
-
       - name: Setup variables
         id: vars
         run: |
@@ -70,7 +63,6 @@ jobs:
       - name: Create release with artifact
         uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # v1.13.0
         with:
-          token: "${{ steps.generate-token.outputs.token }}"
           tag: "v${{ steps.vars.outputs.tag-name }}"
           artifacts: "./vyos-build/build/vyos-${{ steps.vars.outputs.iso-name }}.iso"
           artifactErrorsFailBuild: true
@@ -84,8 +76,7 @@ jobs:
         with:
           tag_name: "v${{ steps.vars.outputs.tag-name }}"
           delete_release: true
-        env:
-          GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
+      
 
       - name: Prune old releases
         if: always()
@@ -93,5 +84,4 @@ jobs:
         with:
           keep_latest: 120
           delete_tags: true
-        env:
-          GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
+     
